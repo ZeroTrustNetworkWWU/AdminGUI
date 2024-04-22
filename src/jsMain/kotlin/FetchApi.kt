@@ -66,7 +66,7 @@ private suspend inline fun <reified T> json(response: Response): T =
  * The API methods
  */
 public class ZTNAPI {
-    private val apiRoot = "http://localhost:5005/api"
+    private val apiRoot = "http://localhost:5005/api" // Edge Node URL
 
     private fun addTrustData(data: dynamic): dynamic {
         // Create the _trustData object with session ID
