@@ -33,8 +33,6 @@ val App = functionalComponent<RProps> {
         setSelectedComponent(child(Dashboard))
     }
 
-    console.log(document.cookie)
-
     val normalColor = Color("#4CAF50") // Normal green
     val selectedColor = Color("#388E3C") // Darker green when selected
     val hoverColor = Color("#45a049") // Green when hovered over

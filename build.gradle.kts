@@ -27,7 +27,6 @@ kotlin {
             dependencies {
                 implementation(kotlin("stdlib-common"))
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
-
             }
         }
         val commonTest by getting {
@@ -45,6 +44,7 @@ kotlin {
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("io.ktor:ktor-server-html-builder:$ktorVersion")
                 implementation("io.ktor:ktor-server-content-negotiation:$ktorVersion")
+                implementation("io.ktor:ktor-server-cors:$ktorVersion")
             }
         }
 
@@ -58,7 +58,7 @@ kotlin {
             implementation("org.jetbrains.kotlin-wrappers:kotlin-react:17.0.2-pre.202-kotlin-1.5.0")
             implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:17.0.2-pre.202-kotlin-1.5.0")
             implementation("org.jetbrains.kotlin-wrappers:kotlin-styled:$kotlinWrapperVersion")
-            
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
         }
     }
     }

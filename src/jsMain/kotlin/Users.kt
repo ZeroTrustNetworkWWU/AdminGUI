@@ -7,17 +7,42 @@ import kotlinx.html.js.*
 import kotlinx.css.*
 import styled.*
 import org.w3c.dom.HTMLInputElement
-
 import com.api.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.browser.document
+
+import com.api.ZTNAPI as API
 
 val Users = functionalComponent<RProps> {
+    val api = API()
     val (name, setName) = useState("")
     val (role, setRole) = useState("")
     val (email, setEmail) = useState("")
     val (password, setPassword) = useState("")
-    val (users, setUsers) = useState(listOf( User("email1@example.com", "Alice", "password1", "admin", "2022-01-01"), User("email2@example.com", "Bob", "password2", "user", "2022-01-01") ))
     val (editing, setEditing) = useState(false)
     val (currentIndex, setCurrentIndex) = useState<Int?>(null)
+    val (users, setUsers) = useState(listOf<User>())
+
+    useEffectWithCleanup(dependencies = listOf()) {
+        val job = GlobalScope.launch {
+            setUsers(api.listUsers())
+        }
+        return@useEffectWithCleanup { job.cancel() }
+    }
+
+    fun commitUsers() {
+        GlobalScope.launch {
+            api.updateUsers(users)
+        }
+    }
+
+    fun refreshUsers() {
+        GlobalScope.launch {
+            setUsers(api.listUsers())
+        }
+    }
 
     fun clearInput() {
         setName("")
@@ -276,7 +301,7 @@ val Users = functionalComponent<RProps> {
                 }
                 attrs {
                     onClickFunction = {
-                        // Add Refresh logic here
+                        refreshUsers()
                     }
                 }
                 +"Refresh"
@@ -295,7 +320,7 @@ val Users = functionalComponent<RProps> {
                 }
                 attrs {
                     onClickFunction = {
-                        // Add commit logic here
+                        commitUsers()
                     }
                 }
                 +"Commit"

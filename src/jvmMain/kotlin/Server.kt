@@ -14,15 +14,19 @@ import io.ktor.server.html.*
 import io.ktor.http.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonElement
 
 import com.api.*
 
 fun main() {
-    embeddedServer(Netty, 5007) {
+    println("Starting server...")
+    val port = 5007
+    embeddedServer(Netty, port) {
         module()
+        println("Server started. Running on http://localhost:${port}")
     }.start(wait = true)
-
 }
 
 fun Application.module() {
@@ -30,12 +34,41 @@ fun Application.module() {
         json()
     }
 
+    var users = listOf( User("email1@example.com", "Alice", "password1", "admin", "2022-01-01"), User("email2@example.com", "Bob", "password2", "user", "2022-01-01") )
+    var roles = listOf( Role("admin", listOf("user", "admin")), Role("user", listOf("user")) )
+
     routing {
         intercept(ApplicationCallPipeline.Call) {
             println("Request: ${call.request.uri}")
+
         }
 
         // Serve any files in the React app's build directory
         staticFiles("/", dir=File("build/dist/js/productionExecutable"), index="index.html")
+
+        // API routes
+        route("/api") {
+            post("/users") {
+                call.respond(users)
+            }
+
+            put("/updateUsers") {
+                println("Updating users")
+                try {
+                    val requestBody = Json.decodeFromString<Map<String, JsonElement>>(call.receiveText())
+                    val usersJsonArray = requestBody["d2_1"]
+                    val usersList = Json.decodeFromString<List<User>>(usersJsonArray.toString())
+                    users = usersList
+                    call.respond(HttpStatusCode.OK)
+                } catch (e: Exception) {
+                    println("Error updating users: $e")
+                    call.respond(HttpStatusCode.BadRequest)
+                }
+            }
+
+            post("/roles") {
+                call.respond(roles)
+            }
+        }
     }
 }

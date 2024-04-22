@@ -9,7 +9,7 @@ data class User(
     @JsName("name") val name: String,
     @JsName("password") val password: String,
     @JsName("role") val role: String,
-    @JsName("lastActive") val lastLogin: String,
+    @JsName("lastLogin") val lastLogin: String,
 )
 
 @Serializable
