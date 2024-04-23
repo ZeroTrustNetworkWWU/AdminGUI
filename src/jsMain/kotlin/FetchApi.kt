@@ -111,4 +111,11 @@ public class ZTNAPI {
     suspend fun updateUsers(users: List<User>) {
         putWithTrustData("$apiRoot/updateUsers", users)
     }
+
+    suspend fun listRoles(): List<Role> =
+        json(getWithTrustData("$apiRoot/roles"))
+
+    suspend fun updateRoles(roles: List<Role>) {
+        putWithTrustData("$apiRoot/updateRoles", roles)
+    }
 }

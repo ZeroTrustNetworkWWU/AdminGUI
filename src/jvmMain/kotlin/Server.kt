@@ -69,6 +69,20 @@ fun Application.module() {
             post("/roles") {
                 call.respond(roles)
             }
+
+            put("/updateRoles") {
+                println("Updating roles")
+                try {
+                    val requestBody = Json.decodeFromString<Map<String, JsonElement>>(call.receiveText())
+                    val rolesJsonArray = requestBody["d2_1"]
+                    val rolesList = Json.decodeFromString<List<Role>>(rolesJsonArray.toString())
+                    roles = rolesList
+                    call.respond(HttpStatusCode.OK)
+                } catch (e: Exception) {
+                    println("Error updating roles: $e")
+                    call.respond(HttpStatusCode.BadRequest)
+                }
+            }
         }
     }
 }
