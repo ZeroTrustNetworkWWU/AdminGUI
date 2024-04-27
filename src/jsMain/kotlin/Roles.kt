@@ -18,7 +18,7 @@ import com.api.ZTNAPI as API
 val Roles = functionalComponent<RProps> {
     val api = API()
     val (role, setRole) = useState("")
-    val (permissions, setPermissions) = useState(listOf<String>())
+    val (permissions, setPermissions) = useState(listOf<Permission>())
     val (editing, setEditing) = useState(false)
     val (currentIndex, setCurrentIndex) = useState<Int?>(null)
     val (roles, setRoles) = useState(listOf<Role>())
@@ -44,21 +44,21 @@ val Roles = functionalComponent<RProps> {
 
     fun clearInput() {
         setRole("")
+        setPermissions(listOf())
     }
 
-    fun addRole(role: String, permisions: List<String>) {
-        val newRole = Role(role, permisions)
-        setRoles(roles + newRole)
-        clearInput()
+    fun addRole(role: String, permissions: List<Permission>) {
+        val newRole = Role(role, permissions)
+        val updatedRoles = roles.toMutableList()
+        updatedRoles.add(newRole)
+        setRoles(updatedRoles)
     }
 
-    fun updateRole(role: String, permisions: List<String>) {
-        val updatedRole = Role(role, permisions)    
-        currentIndex?.let { index ->
-            val updatedRoles = roles.toMutableList()
-            updatedRoles[index] = updatedRole
-            setRoles(updatedRoles)
-        }
+    fun updateRole(role: String, permissions: List<Permission>) {
+        val updatedRoles = roles.toMutableList()
+        updatedRoles[currentIndex!!] = Role(role, permissions)
+        setRoles(updatedRoles)
+
         clearInput()
         setEditing(false)
         setCurrentIndex(null)
@@ -69,7 +69,6 @@ val Roles = functionalComponent<RProps> {
         updatedRoles.removeAt(index)
         setRoles(updatedRoles)
     }
-
 
     styledDiv {
         css {
@@ -85,30 +84,21 @@ val Roles = functionalComponent<RProps> {
                 borderRadius = 20.px
             }
             h2 { +"Roles" }
+
             for ((index, role) in roles.withIndex()) {
                 styledDiv {
                     css {
-                        backgroundColor = Color.white
+                        backgroundColor = Color.lightGray
                         padding(10.px)
                         margin(10.px)
                         borderRadius = 10.px
                         display = Display.flex
-                        justifyContent = JustifyContent.spaceBetween
+                        flexDirection = FlexDirection.row
+                        alignItems = Align.flexStart
                     }
-                    styledDiv {
-                        css {
-                            display = Display.flex
-                            justifyContent = JustifyContent.spaceAround
-                            flexGrow = 1.0
-                        }
-                        p { +"Role: ${role.name}" }
-                        p { +"Permissions: ${role.permissions.joinToString(", ")}" }
-                    }
-                    styledDiv {
-                        css {
-                            display = Display.flex
-                            justifyContent = JustifyContent.spaceAround
-                        }
+                    child(RoleDisplay, RoleDisplayProps(role, index))
+
+                    styledTd {
                         styledButton {
                             css {
                                 margin(10.px)
@@ -128,6 +118,7 @@ val Roles = functionalComponent<RProps> {
                                     setEditing(true)
                                     setCurrentIndex(index)
                                 }
+                                title = "Edit Role"
                             }
                             +"Edit"
                         }
@@ -147,6 +138,7 @@ val Roles = functionalComponent<RProps> {
                                 onClickFunction = {
                                     deleteRole(index)
                                 }
+                                title = "Delete Role"
                             }
                             +"Delete"
                         }
@@ -168,6 +160,7 @@ val Roles = functionalComponent<RProps> {
                     padding(10.px)
                     borderRadius = 5.px
                     border = "none"
+                    backgroundColor = Color.lightGray
                 }
                 attrs {
                     placeholder = "Role"
@@ -178,19 +171,61 @@ val Roles = functionalComponent<RProps> {
                     }
                 }
             }
-            styledInput(InputType.text) {
-                css {
-                    margin(10.px)
-                    padding(10.px)
-                    borderRadius = 5.px
-                    border = "none"
-                }
-                attrs {
-                    placeholder = "Permissions (comma-separated)"
-                    value = permissions.joinToString(", ")
-                    onChangeFunction = {
-                        val target = it.target as HTMLInputElement
-                        setPermissions(target.value.split(", ").map { it.trim() })
+            val emptyCount = permissions.count { it.path.isBlank() }
+            if (emptyCount >= 2) {
+                setPermissions(permissions.filter { it.path.isNotBlank() } + Permission("", listOf()))
+            }
+            
+            (permissions + Permission("", listOf())).forEachIndexed { index, permission ->
+                styledDiv {
+                    css {
+                        display = Display.flex
+                    }
+                    styledInput(InputType.text) {
+                        css {
+                            margin(10.px)
+                            padding(10.px)
+                            borderRadius = 5.px
+                            border = "none"
+                            backgroundColor = Color.lightGray.withAlpha(0.5)
+                        }
+                        attrs {
+                            placeholder = "Permission"
+                            value = permission.path
+                            onChangeFunction = {
+                                val target = it.target as HTMLInputElement
+                                val updatedPermissions = permissions.toMutableList().apply { 
+                                    if (index < size) this[index] = Permission(target.value, this[index].methods) 
+                                    else add(Permission(target.value, listOf())) 
+                                }
+                                setPermissions(updatedPermissions)
+                            }
+                        }
+                    }
+                    styledInput(InputType.text) {
+                        css {
+                            margin(10.px)
+                            padding(10.px)
+                            borderRadius = 5.px
+                            border = "none"
+                            backgroundColor = Color.lightGray.withAlpha(0.25)
+                            width = 50.pct
+                        }
+                        attrs {
+                            placeholder = "Methods (comma-separated)"
+                            value = permission.methods.joinToString(",")
+                            onChangeFunction = {
+                                val target = it.target as HTMLInputElement
+                                // clean any spaces and update the input
+                                val methods = target.value.split(",").map { it.trim() }
+                                it.target.asDynamic().value = methods.joinToString(", ")
+                                val updatedPermissions = permissions.toMutableList().apply { 
+                                    if (index < size) this[index] = Permission(this[index].path, methods) 
+                                    else add(Permission("", methods)) 
+                                }
+                                setPermissions(updatedPermissions)
+                            }
+                        }
                     }
                 }
             }
@@ -213,6 +248,7 @@ val Roles = functionalComponent<RProps> {
                         } else {
                             addRole(role, permissions)
                         }
+                        clearInput()
                     }
                 }
                 +if (editing) "Update Role" else "Add Role"

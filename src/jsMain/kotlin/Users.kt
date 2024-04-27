@@ -93,7 +93,7 @@ val Users = functionalComponent<RProps> {
             for ((index, user) in users.withIndex()) {
                 styledDiv {
                     css {
-                        backgroundColor = Color.white
+                        backgroundColor = Color.lightGrey
                         padding(10.px)
                         margin(10.px)
                         borderRadius = 10.px
@@ -170,12 +170,17 @@ val Users = functionalComponent<RProps> {
                 borderRadius = 20.px
             }
             h2 { +if (editing) "Update User" else "Add User" }
+            fun CSSBuilder.commonInputStyle() {
+                margin(10.px)
+                padding(10.px)
+                borderRadius = 5.px
+                border = "none"
+                backgroundColor = Color.lightGray.withAlpha(0.5)
+            }
+
             styledInput(InputType.text) {
                 css {
-                    margin(10.px)
-                    padding(10.px)
-                    borderRadius = 5.px
-                    border = "none"
+                    commonInputStyle()
                 }
                 attrs {
                     placeholder = "Name"
@@ -188,10 +193,7 @@ val Users = functionalComponent<RProps> {
             }
             styledInput(InputType.text) {
                 css {
-                    margin(10.px)
-                    padding(10.px)
-                    borderRadius = 5.px
-                    border = "none"
+                    commonInputStyle()
                 }
                 attrs {
                     placeholder = "Role"
@@ -204,10 +206,7 @@ val Users = functionalComponent<RProps> {
             }
             styledInput(InputType.email) {
                 css {
-                    margin(10.px)
-                    padding(10.px)
-                    borderRadius = 5.px
-                    border = "none"
+                    commonInputStyle()
                 }
                 attrs {
                     placeholder = "Email"
@@ -220,10 +219,7 @@ val Users = functionalComponent<RProps> {
             }
             styledInput(InputType.password) {
                 css {
-                    margin(10.px)
-                    padding(10.px)
-                    borderRadius = 5.px
-                    border = "none"
+                    commonInputStyle()
                 }
                 attrs {
                     placeholder = "Password"

@@ -34,9 +34,15 @@ fun Application.module() {
         json()
     }
 
-    var users = listOf( User("email1@example.com", "Alice", "password1", "admin", "2022-01-01"), User("email2@example.com", "Bob", "password2", "user", "2022-01-01") )
-    var roles = listOf( Role("admin", listOf("user", "admin")), Role("user", listOf("user")) )
-
+    var users = listOf( 
+        User("Alice", "Alice54@gmail.com", "admin", "password1", "2022-01-01"), 
+        User("Bobby", "BobbyBert@gmail.com", "user", "password2", "2022-01-01") 
+    )
+    var roles = listOf(
+        Role("admin", listOf(Permission("/*", listOf("*")))),
+        Role("user", listOf(Permission("api/users", listOf("POST", "GET")), Permission("api/roles", listOf("POST", "GET"))))
+    )
+    
     routing {
         intercept(ApplicationCallPipeline.Call) {
             println("Request: ${call.request.uri}")
