@@ -52,13 +52,13 @@ val Users = functionalComponent<RProps> {
     }
 
     fun addUser(name: String, role: String, email: String, password: String) {
-        val newUser = User(email, name, password, role, "Never")
+        val newUser = User(name, email, role, password, "Never")
         setUsers(users + newUser)
         clearInput()
     }
 
     fun updateUser(name: String, role: String, email: String, password: String) {
-        val updatedUser = User(email, name, password, role, "Never")
+        val updatedUser = User(name, email, role, password, "Never")
         currentIndex?.let { index ->
             val updatedUsers = users.toMutableList()
             updatedUsers[index] = updatedUser
